@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CYBER CIRCUIT // OVERRIDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --card-bg: rgba(14, 18, 30, 0.88);
+      --neon-cyan: #00f3ff;
+      --neon-pink: #ff0055;
+      --neon-green: #00ff88;
+      --neon-yellow: #ffe600;
+      --grid-bg: #090d18;
+      --wire-inactive: #222d42;
+      --text: #e2e8f0;
+      --text-dim: #64748b;
+      --glow-cyan: 0 0 16px rgba(0, 243, 255, 0.65), 0 0 32px rgba(0, 243, 255, 0.25);
+      --glow-pink: 0 0 16px rgba(255, 0, 85, 0.65), 0 0 32px rgba(255, 0, 85, 0.25);
+      --glow-green: 0 0 18px rgba(0, 255, 136, 0.8);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(0, 243, 255, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(255, 0, 85, 0.1) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+      color: var(--text);
+      font-family: 'Chakra Petch', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    /* CRT scanline texture */
+    body::before {
+      content: " ";
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%);
+      background-size: 100% 4px;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card-bg);
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.85), inset 0 0 25px rgba(0, 243, 255, 0.06);
+      backdrop-filter: blur(14px);
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+    }
+
+    .title-group h1 {
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #fff;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    .title-group h1 span {
+      color: var(--neon-pink);
+      text-shadow: 0 0 10px var(--neon-pink);
+    }
+
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      padding: 2px 6px;
+      background: rgba(0, 243, 255, 0.15);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 3px;
+    }
+
+    .top-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fff;
+      font-size: 0.95rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--neon-cyan);
+      background: rgba(0, 243, 255, 0.18);
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* HUD */
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .hud-box {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 8px 4px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .hud-box.highlight {
+      border-color: var(--neon-pink);
+      box-shadow: 0 0 12px rgba(255, 0, 85, 0.2);
+    }
+
+    .hud-label {
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .hud-value {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Firewall Trace Bar */
+    .trace-container {
+      margin-bottom: 12px;
+    }
+
+    .trace-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 4px;
+    }
+
+    .trace-label {
+      color: var(--neon-pink);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trace-label::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--neon-pink);
+      animation: pulse 1s infinite;
+    }
+
+    .trace-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 0, 85, 0.35);
+    }
+
+    .trace-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff0055, #ff6600);
+      box-shadow: 0 0 10px #ff0055;
+      transition: width 0.1s linear;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(1.3); }
+    }
+
+    /* Board Area */
+    .board-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--grid-bg);
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid rgba(0, 243, 255, 0.25);
+      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.95);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    #particles-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .grid {
+      display: grid;
+      gap: 6px;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 1;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Circuit Tile */
+    .tile {
+      background: #111724;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tile:hover:not(.locked) {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+      transform: scale(1.03);
+    }
+
+    .tile.locked {
+      cursor: default;
+      background: #0b0f17;
+    }
+
+    .tile.hint-pulse {
+      animation: hintGlow 0.8s ease-in-out 2;
+    }
+
+    @keyframes hintGlow {
+      0%, 100% { border-color: rgba(255, 255, 255, 0.1); }
+      50% { border-color: var(--neon-yellow); box-shadow: 0 0 20px var(--neon-yellow); }
+    }
+
+    .tile.powered {
+      border-color: rgba(0, 243, 255, 0.6);
+      background: #0f233a;
+      box-shadow: inset 0 0 12px rgba(0, 243, 255, 0.2);
+    }
+
+    .tile.powered.target-powered {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.7);
+      background: #072e1e;
+    }
+
+    .tile svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+
+    .wire-base {
+      stroke: var(--wire-inactive);
+      stroke-width: 14;
+      stroke-linecap: round;
+      fill: none;
+    }
+
+    .wire-power {
+      stroke: var(--neon-cyan);
+      stroke-width: 10;
+      stroke-linecap: round;
+      fill: none;
+      opacity: 0;
+      filter: drop-shadow(0 0 6px var(--neon-cyan));
+      transition: opacity 0.15s ease-out;
+    }
+
+    .tile.powered .wire-power {
+      opacity: 1;
+    }
+
+    .tile.powered.target-powered .wire-power {
+      stroke: var(--neon-green);
+      filter: drop-shadow(0 0 8px var(--neon-green));
+    }
+
+    /* Terminal bar */
+    .terminal-bar {
+      background: #070910;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--neon-cyan);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .status-text {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--neon-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--neon-cyan);
+      flex-shrink: 0;
+    }
+
+    /* Controls bar */
+    .bottom-bar {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn-sm {
+      flex: 1;
+      background: rgba(0, 243, 255, 0.12);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .action-btn-sm:hover {
+      background: var(--neon-cyan);
+      color: #000;
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(5, 7, 13, 0.94);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 20px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-title {
+      font-size: 1.85rem;
+      font-weight: 900;
+      margin-bottom: 4px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .modal-title.win {
+      color: var(--neon-green);
+      text-shadow: var(--glow-green);
+    }
+
+    .modal-title.lose {
+      color: var(--neon-pink);
+      text-shadow: var(--glow-pink);
+    }
+
+    .tier-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      background: rgba(0, 255, 136, 0.15);
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+      padding: 5px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      margin: 8px 0 14px;
+      letter-spacing: 1px;
+    }
+
+    .tier-badge.fail {
+      background: rgba(255, 0, 85, 0.15);
+      border-color: var(--neon-pink);
+      color: var(--neon-pink);
+    }
+
+    .stats-summary {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 12px 18px;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stats-summary div {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stats-summary span:last-child {
+      color: var(--neon-cyan);
+      font-weight: 700;
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, var(--neon-cyan), #0077ff);
+      border: none;
+      color: #000;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      padding: 12px 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 0 30px rgba(0, 243, 255, 0.7);
+    }
+
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(3px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+      40%, 60% { transform: translate3d(5px, 0, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container" id="game-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="title-group">
+        <h1>CYBER <span>OVERRIDE</span></h1>
+        <div class="badge">CIRCUIT BREACH PROTOCOL</div>
+      </div>
+      <div class="top-controls">
+        <button class="icon-btn" id="sfx-toggle" title="Toggle SFX">🔊</button>
+        <button class="icon-btn" id="music-toggle" title="Toggle Synth Beat">🎵</button>
+        <button class="icon-btn" id="restart-level-btn" title="Restart Level">↺</button>
+      </div>
+    </header>
+
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-box">
+        <div class="hud-label">LAYER</div>
+        <div class="hud-value" id="hud-level">1/6</div>
+      </div>
+      <div class="hud-box">
+        <div class="hud-label">SCORE</div>
+        <div class="hud-value" id="hud-score">0000</div>
+      </div>
+      <div class="hud-box">
+        <div class="hud-label">MOVES</div>
+        <div class="hud-value" id="hud-moves">0</div>
+      </div>
+      <div class="hud-box highlight">
+        <div class="hud-label">COMBO</div>
+        <div class="hud-value" id="hud-combo">x1.0</div>
+      </div>
+    </div>
+
+    <!-- Firewall Trace Timer -->
+    <div class="trace-container">
+      <div class="trace-header">
+        <span class="trace-label">FIREWALL TRACE ACTIVE</span>
+        <span id="trace-time-display">25.0s</span>
+      </div>
+      <div class="trace-bar-bg">
+        <div class="trace-bar-fill" id="trace-bar"></div>
+      </div>
+    </div>
+
+    <!-- Puzzle Grid -->
+    <div class="board-wrapper">
+      <canvas id="particles-canvas"></canvas>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <!-- Terminal Status Log -->
+    <div class="terminal-bar">
+      <div class="status-text">
+        <div class="status-dot"></div>
+        <span id="terminal-msg">CLICK TILES TO ROTATE & CONNECT SOURCE TO CORE</span>
+      </div>
+      <div id="grid-dim-indicator">3x3 MATRIX</div>
+    </div>
+
+    <!-- Action Bottom Bar -->
+    <div class="bottom-bar">
+      <button class="action-btn-sm" id="hint-btn">⚡ SCAN TRACE (HINT)</button>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="modal-overlay" id="win-modal">
+      <div class="modal-title win">BREACH SUCCESSFUL</div>
+      <div class="tier-badge" id="win-tier">RANK: S+ [CYBER GOD]</div>
+      <div class="stats-summary">
+        <div><span>Time Left:</span><span id="win-time">18.4s</span></div>
+        <div><span>Rotations:</span><span id="win-moves">9</span></div>
+        <div><span>Layer Bonus:</span><span id="win-bonus">+1,450</span></div>
+        <div><span>Total Score:</span><span id="win-total">2,850</span></div>
+      </div>
+      <button class="action-btn" id="next-level-btn">NEXT SECURITY LAYER →</button>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="lose-modal">
+      <div class="modal-title lose">FIREWALL LOCKED</div>
+      <div class="tier-badge fail">TRACE: 100% [SKILL ISSUE]</div>
+      <div class="stats-summary">
+        <div><span>Status:</span><span>IP BLOCKED</span></div>
+        <div><span>Final Score:</span><span id="lose-score">1,200</span></div>
+      </div>
+      <button class="action-btn" id="retry-btn">RETRY BREACH ↺</button>
+    </div>
+  </div>
+
+  <script>
+    /* =====================================================================
+       AUDIO SYNTHESIZER (Pure Web Audio API)
+       ===================================================================== */
+    class CyberSound {
+      constructor() {
+        this.ctx = null;
+        this.sfxEnabled = true;
+        this.musicEnabled = false;
+        this.musicInterval = null;
+        this.bassStep = 0;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.12) {
+        if (!this.sfxEnabled) return;
+        this.init();
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+
+      rotateClick() {
+        this.playTone(600, 'triangle', 0.04, 0.18);
+        setTimeout(() => this.playTone(900, 'sine', 0.03, 0.12), 20);
+      }
+
+      alarmBeep() {
+        this.playTone(950, 'sawtooth', 0.1, 0.22);
+      }
+
+      hintSound() {
+        this.playTone(800, 'sine', 0.08, 0.15);
+        setTimeout(() => this.playTone(1200, 'sine', 0.12, 0.15), 60);
+      }
+
+      winChime() {
+        if (!this.sfxEnabled) return;
+        this.init();
+        const chord = [392, 523.25, 659.25, 783.99, 1046.5];
+        chord.forEach((freq, idx) => {
+          setTimeout(() => this.playTone(freq, 'sine', 0.35, 0.18), idx * 60);
+        });
+      }
+
+      failBuzz() {
+        if (!this.sfxEnabled) return;
+        this.init();
+        this.playTone(140, 'sawtooth', 0.35, 0.25);
+        setTimeout(() => this.playTone(90, 'sawtooth', 0.45, 0.3), 150);
+      }
+
+      toggleMusic() {
+        this.musicEnabled = !this.musicEnabled;
+        if (this.musicEnabled) {
+          this.init();
+          this.startMusic();
+        } else {
+          clearInterval(this.musicInterval);
+        }
+        return this.musicEnabled;
+      }
+
+      startMusic() {
+        clearInterval(this.musicInterval);
+        const notes = [110, 110, 130.81, 110, 146.83, 110, 164.81, 130.81];
+        this.musicInterval = setInterval(() => {
+          if (!this.musicEnabled) return;
+          const note = notes[this.bassStep % notes.length];
+          this.playTone(note, 'triangle', 0.12, 0.05);
+          this.bassStep++;
+        }, 160);
+      }
+    }
+
+    const sound = new CyberSound();
+
+    /* =====================================================================
+       PARTICLE SYSTEM (Canvas Sparks)
+       ===================================================================== */
+    const canvas = document.getElementById('particles-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function spawnBurst(x, y, color = '#00f3ff', count = 35) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 6 + 2;
+        particles.push({
+          x: x || canvas.width / 2,
+          y: y || canvas.height / 2,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          radius: Math.random() * 3 + 1.5,
+          color: color,
+          alpha: 1,
+          decay: Math.random() * 0.025 + 0.015
+        });
+      }
+    }
+
+    function renderParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.96;
+        p.vy *= 0.96;
+        p.alpha -= p.decay;
+
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
+
+    /* =====================================================================
+       CIRCUIT MATH & GUARANTEED SOLVABLE GENERATOR
+       Directions: 0: UP, 1: RIGHT, 2: DOWN, 3: LEFT
+       ===================================================================== */
+    const DIRS = [
+      { dr: -1, dc: 0, from: 0, to: 2 }, // 0: UP
+      { dr: 0, dc: 1, from: 1, to: 3 },  // 1: RIGHT
+      { dr: 1, dc: 0, from: 2, to: 0 },  // 2: DOWN
+      { dr: 0, dc: -1, from: 3, to: 1 }  // 3: LEFT
+    ];
+
+    const TILE_SHAPES = {
+      straight: [1, 0, 1, 0], // Top & Bottom
+      elbow:    [1, 1, 0, 0], // Top & Right
+      tee:      [1, 1, 0, 1], // Top, Right, Left
+      cross:    [1, 1, 1, 1], // 4-way
+      cap:      [1, 0, 0, 0]  // Single terminal (Source/Target)
+    };
+
+    function getDir(from, to) {
+      if (to.r < from.r) return 0; // UP
+      if (to.c > from.c) return 1; // RIGHT
+      if (to.r > from.r) return 2; // DOWN
+      return 3;                    // LEFT
+    }
+
+    function getPieceFor(d1, d2) {
+      if ((d1 + 2) % 4 === d2) {
+        return { type: 'straight', rot: (d1 === 0 || d1 === 2) ? 0 : 1 };
+      }
+      let s = new Set([d1, d2]);
+      if (s.has(0) && s.has(1)) return { type: 'elbow', rot: 0 };
+      if (s.has(1) && s.has(2)) return { type: 'elbow', rot: 1 };
+      if (s.has(2) && s.has(3)) return { type: 'elbow', rot: 2 };
+      if (s.has(3) && s.has(0)) return { type: 'elbow', rot: 3 };
+      return { type: 'elbow', rot: 0 };
+    }
+
+    function getOpenings(type, rot) {
+      const base = TILE_SHAPES[type];
+      const openings = [0, 0, 0, 0];
+      for (let i = 0; i < 4; i++) {
+        if (base[i]) openings[(i + rot) % 4] = 1;
+      }
+      return openings;
+    }
+
+    // Level progression specs
+    const CAMPAIGN_SPECS = [
+      { size: 3, pathLength: 5, time: 26 },
+      { size: 4, pathLength: 7, time: 30 },
+      { size: 4, pathLength: 9, time: 28 },
+      { size: 5, pathLength: 10, time: 35 },
+      { size: 5, pathLength: 12, time: 32 },
+      { size: 5, pathLength: 14, time: 30 }
+    ];
+
+    class Game {
+      constructor() {
+        this.currentLevelIdx = 0;
+        this.score = 0;
+        this.moves = 0;
+        this.combo = 1.0;
+        this.grid = [];
+        this.solutionPath = [];
+        this.size = 3;
+        this.timeTotal = 25;
+        this.timeLeft = 25;
+        this.timer = null;
+        this.isGameOver = false;
+
+        // Elements
+        this.gridEl = document.getElementById('grid');
+        this.hudLevel = document.getElementById('hud-level');
+        this.hudScore = document.getElementById('hud-score');
+        this.hudMoves = document.getElementById('hud-moves');
+        this.hudCombo = document.getElementById('hud-combo');
+        this.traceBar = document.getElementById('trace-bar');
+        this.traceTimeDisplay = document.getElementById('trace-time-display');
+        this.terminalMsg = document.getElementById('terminal-msg');
+        this.gridDimIndicator = document.getElementById('grid-dim-indicator');
+        this.winModal = document.getElementById('win-modal');
+        this.loseModal = document.getElementById('lose-modal');
+
+        this.attachEventListeners();
+        this.loadLevel(this.currentLevelIdx);
+      }
+
+      attachEventListeners() {
+        document.getElementById('next-level-btn').addEventListener('click', () => {
+          this.winModal.classList.remove('active');
+          this.currentLevelIdx++;
+          this.loadLevel(this.currentLevelIdx);
+        });
+
+        document.getElementById('retry-btn').addEventListener('click', () => {
+          this.loseModal.classList.remove('active');
+          this.loadLevel(this.currentLevelIdx);
+        });
+
+        document.getElementById('restart-level-btn').addEventListener('click', () => {
+          this.loadLevel(this.currentLevelIdx);
+        });
+
+        document.getElementById('hint-btn').addEventListener('click', () => {
+          this.giveHint();
+        });
+
+        document.getElementById('sfx-toggle').addEventListener('click', (e) => {
+          sound.sfxEnabled = !sound.sfxEnabled;
+          e.target.textContent = sound.sfxEnabled ? '🔊' : '🔇';
+        });
+
+        document.getElementById('music-toggle').addEventListener('click', (e) => {
+          const on = sound.toggleMusic();
+          e.target.textContent = on ? '🎶' : '🎵';
+          e.target.style.borderColor = on ? 'var(--neon-green)' : '';
+        });
+      }
+
+      generateGuaranteedLevel(size, pathLength) {
+        let path = null;
+        for (let attempt = 0; attempt < 300; attempt++) {
+          let p = [{ r: 0, c: 0 }];
+          let visited = new Set(['0,0']);
+          let curr = p[0];
+
+          while (p.length < pathLength) {
+            let candidates = [];
+            for (let d = 0; d < 4; d++) {
+              let nr = curr.r + DIRS[d].dr;
+              let nc = curr.c + DIRS[d].dc;
+              if (nr >= 0 && nr < size && nc >= 0 && nc < size && !visited.has(`${nr},${nc}`)) {
+                candidates.push({ r: nr, c: nc });
+              }
+            }
+            if (candidates.length === 0) break;
+            let next = candidates[Math.floor(Math.random() * candidates.length)];
+            visited.add(`${next.r},${next.c}`);
+            p.push(next);
+            curr = next;
+          }
+          if (p.length >= pathLength) {
+            path = p;
+            break;
+          }
+        }
+
+        if (!path) {
+          // Fallback simple path
+          path = [];
+          for (let c = 0; c < size; c++) path.push({ r: 0, c });
+          for (let r = 1; r < size; r++) path.push({ r, c: size - 1 });
+        }
+
+        // Build grid
+        let grid = [];
+        for (let r = 0; r < size; r++) {
+          let row = [];
+          for (let c = 0; c < size; c++) {
+            row.push({
+              r, c,
+              type: 'straight',
+              rotation: 0,
+              solvedRot: 0,
+              isSource: false,
+              isTarget: false,
+              locked: false,
+              powered: false
+            });
+          }
+          grid.push(row);
+        }
+
+        // Assign path tiles
+        for (let i = 0; i < path.length; i++) {
+          let cell = grid[path[i].r][path[i].c];
+          if (i === 0) {
+            cell.isSource = true;
+            cell.locked = true;
+            cell.type = 'cap';
+            cell.rotation = getDir(path[0], path[1]);
+            cell.solvedRot = cell.rotation;
+          } else if (i === path.length - 1) {
+            cell.isTarget = true;
+            cell.locked = true;
+            cell.type = 'cap';
+            cell.rotation = getDir(path[i], path[i - 1]);
+            cell.solvedRot = cell.rotation;
+          } else {
+            let dIn = getDir(path[i], path[i - 1]);
+            let dOut = getDir(path[i], path[i + 1]);
+            let piece = getPieceFor(dIn, dOut);
+            cell.type = piece.type;
+            cell.solvedRot = piece.rot;
+            cell.rotation = piece.rot;
+          }
+        }
+
+        // Fill remaining tiles
+        const fillers = ['straight', 'elbow', 'tee', 'cross'];
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            let cell = grid[r][c];
+            if (!cell.isSource && !cell.isTarget && !path.some(p => p.r === r && p.c === c)) {
+              cell.type = fillers[Math.floor(Math.random() * fillers.length)];
+              cell.solvedRot = Math.floor(Math.random() * 4);
+              cell.rotation = cell.solvedRot;
+            }
+          }
+        }
+
+        // Scramble rotatable tiles so puzzle starts unsolved
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            let cell = grid[r][c];
+            if (!cell.locked) {
+              const offset = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3 rotations
+              cell.rotation = (cell.rotation + offset) % 4;
+            }
+          }
+        }
+
+        return { grid, path, source: path[0], target: path[path.length - 1] };
+      }
+
+      loadLevel(idx) {
+        clearInterval(this.timer);
+        this.isGameOver = false;
+        this.winModal.classList.remove('active');
+        this.loseModal.classList.remove('active');
+
+        let spec;
+        if (idx < CAMPAIGN_SPECS.length) {
+          spec = CAMPAIGN_SPECS[idx];
+          this.hudLevel.textContent = `${idx + 1}/${CAMPAIGN_SPECS.length}`;
+        } else {
+          spec = { size: 5, pathLength: 14 + (idx - CAMPAIGN_SPECS.length), time: 30 };
+          this.hudLevel.textContent = `INF-${idx - CAMPAIGN_SPECS.length + 1}`;
+        }
+
+        this.size = spec.size;
+        this.timeTotal = spec.time;
+        this.timeLeft = spec.time;
+        this.moves = 0;
+        this.hudMoves.textContent = this.moves;
+        this.gridDimIndicator.textContent = `${this.size}x${this.size} MATRIX`;
+        this.terminalMsg.textContent = `INFILTRATING SECURITY LAYER #${idx + 1}... ROUTE CONDUIT`;
+
+        const generated = this.generateGuaranteedLevel(this.size, spec.pathLength);
+        this.grid = generated.grid;
+        this.solutionPath = generated.path;
+
+        this.renderBoard();
+        this.updatePowerFlow();
+        this.startTimer();
+      }
+
+      startTimer() {
+        this.updateTimerUI();
+        this.timer = setInterval(() => {
+          this.timeLeft -= 0.1;
+          if (this.timeLeft <= 0) {
+            this.timeLeft = 0;
+            this.updateTimerUI();
+            this.triggerLoss();
+          } else {
+            this.updateTimerUI();
+            if (this.timeLeft < 5 && Math.floor(this.timeLeft * 10) % 10 === 0) {
+              sound.alarmBeep();
+            }
+          }
+        }, 100);
+      }
+
+      updateTimerUI() {
+        const percent = ((this.timeTotal - this.timeLeft) / this.timeTotal) * 100;
+        this.traceBar.style.width = `${Math.min(100, percent)}%`;
+        this.traceTimeDisplay.textContent = `${this.timeLeft.toFixed(1)}s`;
+
+        if (this.timeLeft < 7) {
+          this.traceTimeDisplay.style.color = 'var(--neon-pink)';
+        } else {
+          this.traceTimeDisplay.style.color = '#fff';
+        }
+      }
+
+      renderBoard() {
+        this.gridEl.innerHTML = '';
+        this.gridEl.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
+        this.gridEl.style.gridTemplateRows = `repeat(${this.size}, 1fr)`;
+
+        for (let r = 0; r < this.size; r++) {
+          for (let c = 0; c < this.size; c++) {
+            const cell = this.grid[r][c];
+            const tileEl = document.createElement('div');
+            tileEl.className = 'tile';
+            tileEl.id = `tile-${r}-${c}`;
+            if (cell.locked) tileEl.classList.add('locked');
+
+            tileEl.innerHTML = this.getSVG(cell.type, cell.isSource, cell.isTarget);
+            tileEl.style.transform = `rotate(${cell.rotation * 90}deg)`;
+
+            tileEl.addEventListener('click', () => this.handleTileClick(cell, tileEl));
+            this.gridEl.appendChild(tileEl);
+          }
+        }
+        resizeCanvas();
+      }
+
+      getSVG(type, isSource, isTarget) {
+        if (isSource) {
+          return `
+            <svg viewBox="0 0 100 100">
+              <line x1="50" y1="50" x2="50" y2="0" class="wire-base" />
+              <line x1="50" y1="50" x2="50" y2="0" class="wire-power" />
+              <circle cx="50" cy="50" r="22" fill="#00f3ff" opacity="0.25" />
+              <circle cx="50" cy="50" r="14" fill="#00f3ff" filter="drop-shadow(0 0 8px #00f3ff)" />
+              <circle cx="50" cy="50" r="5" fill="#fff" />
+            </svg>
+          `;
+        }
+        if (isTarget) {
+          return `
+            <svg viewBox="0 0 100 100">
+              <line x1="50" y1="50" x2="50" y2="0" class="wire-base" />
+              <line x1="50" y1="50" x2="50" y2="0" class="wire-power" />
+              <rect x="32" y="32" width="36" height="36" rx="6" fill="#ff0055" opacity="0.25" />
+              <rect x="38" y="38" width="24" height="24" rx="4" fill="#ff0055" filter="drop-shadow(0 0 10px #ff0055)" />
+              <circle cx="50" cy="50" r="5" fill="#fff" />
+            </svg>
+          `;
+        }
+
+        switch (type) {
+          case 'straight':
+            return `
+              <svg viewBox="0 0 100 100">
+                <line x1="50" y1="0" x2="50" y2="100" class="wire-base" />
+                <line x1="50" y1="0" x2="50" y2="100" class="wire-power" />
+                <circle cx="50" cy="50" r="5" fill="#303e5c" />
+              </svg>
+            `;
+          case 'elbow':
+            return `
+              <svg viewBox="0 0 100 100">
+                <path d="M 50,0 L 50,50 L 100,50" class="wire-base" />
+                <path d="M 50,0 L 50,50 L 100,50" class="wire-power" />
+                <circle cx="50" cy="50" r="5" fill="#303e5c" />
+              </svg>
+            `;
+          case 'tee':
+            return `
+              <svg viewBox="0 0 100 100">
+                <path d="M 0,50 L 100,50 M 50,50 L 50,0" class="wire-base" />
+                <path d="M 0,50 L 100,50 M 50,50 L 50,0" class="wire-power" />
+                <circle cx="50" cy="50" r="5" fill="#303e5c" />
+              </svg>
+            `;
+          case 'cross':
+            return `
+              <svg viewBox="0 0 100 100">
+                <line x1="50" y1="0" x2="50" y2="100" class="wire-base" />
+                <line x1="0" y1="50" x2="100" y2="50" class="wire-base" />
+                <line x1="50" y1="0" x2="50" y2="100" class="wire-power" />
+                <line x1="0" y1="50" x2="100" y2="50" class="wire-power" />
+                <circle cx="50" cy="50" r="6" fill="#303e5c" />
+              </svg>
+            `;
+        }
+      }
+
+      handleTileClick(cell, el) {
+        if (this.isGameOver || cell.locked) return;
+
+        cell.rotation = (cell.rotation + 1) % 4;
+        el.style.transform = `rotate(${cell.rotation * 90}deg)`;
+        
+        this.moves++;
+        this.hudMoves.textContent = this.moves;
+        sound.rotateClick();
+
+        this.updatePowerFlow();
+      }
+
+      giveHint() {
+        if (this.isGameOver) return;
+        // Find first unsolved cell along solution path
+        for (let i = 1; i < this.solutionPath.length - 1; i++) {
+          const pt = this.solutionPath[i];
+          const cell = this.grid[pt.r][pt.c];
+          if ((cell.rotation % 4) !== (cell.solvedRot % 4)) {
+            cell.rotation = cell.solvedRot;
+            const el = document.getElementById(`tile-${cell.r}-${cell.c}`);
+            el.style.transform = `rotate(${cell.rotation * 90}deg)`;
+            el.classList.add('hint-pulse');
+            setTimeout(() => el.classList.remove('hint-pulse'), 1600);
+            
+            sound.hintSound();
+            this.updatePowerFlow();
+            this.terminalMsg.textContent = `HINT APPLIED TO CONDUIT (${cell.r + 1},${cell.c + 1})`;
+            return;
+          }
+        }
+        this.terminalMsg.textContent = `ALL PATH TILES ALIGNED! CONNECT TERMINALS`;
+      }
+
+      updatePowerFlow() {
+        // Reset powered
+        for (let r = 0; r < this.size; r++) {
+          for (let c = 0; c < this.size; c++) {
+            this.grid[r][c].powered = false;
+          }
+        }
+
+        let sourceCell = null;
+        let targetCell = null;
+        for (let r = 0; r < this.size; r++) {
+          for (let c = 0; c < this.size; c++) {
+            if (this.grid[r][c].isSource) sourceCell = this.grid[r][c];
+            if (this.grid[r][c].isTarget) targetCell = this.grid[r][c];
+          }
+        }
+
+        if (!sourceCell) return;
+
+        // BFS
+        sourceCell.powered = true;
+        const queue = [sourceCell];
+        const visited = new Set([`${sourceCell.r},${sourceCell.c}`]);
+
+        while (queue.length > 0) {
+          const curr = queue.shift();
+          const currOpenings = getOpenings(curr.type, curr.rotation);
+
+          for (const d of DIRS) {
+            if (!currOpenings[d.from]) continue;
+
+            const nr = curr.r + d.dr;
+            const nc = curr.c + d.dc;
+
+            if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) continue;
+
+            const neighbor = this.grid[nr][nc];
+            const neighborOpenings = getOpenings(neighbor.type, neighbor.rotation);
+
+            if (neighborOpenings[d.to]) {
+              neighbor.powered = true;
+              const key = `${nr},${nc}`;
+              if (!visited.has(key)) {
+                visited.add(key);
+                queue.push(neighbor);
+              }
+            }
+          }
+        }
+
+        // Apply visual classes
+        for (let r = 0; r < this.size; r++) {
+          for (let c = 0; c < this.size; c++) {
+            const el = document.getElementById(`tile-${r}-${c}`);
+            const cell = this.grid[r][c];
+            if (cell.powered) {
+              el.classList.add('powered');
+            } else {
+              el.classList.remove('powered');
+            }
+          }
+        }
+
+        // Check victory
+        if (targetCell && targetCell.powered && !this.isGameOver) {
+          this.triggerVictory(targetCell);
+        }
+      }
+
+      triggerVictory(targetCell) {
+        this.isGameOver = true;
+        clearInterval(this.timer);
+
+        const targetEl = document.getElementById(`tile-${targetCell.r}-${targetCell.c}`);
+        targetEl.classList.add('target-powered');
+
+        // Sparks & Sound
+        const rect = targetEl.getBoundingClientRect();
+        const boardRect = canvas.getBoundingClientRect();
+        spawnBurst(rect.left - boardRect.left + rect.width / 2, rect.top - boardRect.top + rect.height / 2, '#00ff88', 65);
+        sound.winChime();
+
+        // Calculate score & rating
+        const timeBonus = Math.floor(this.timeLeft * 80);
+        const efficiencyBonus = Math.max(0, 500 - (this.moves * 15));
+        const nodeBase = 1000;
+        const totalNodeGain = Math.floor((nodeBase + timeBonus + efficiencyBonus) * this.combo);
+
+        this.score += totalNodeGain;
+        this.hudScore.textContent = this.score.toString().padStart(4, '0');
+        this.combo = Math.min(4.0, +(this.combo + 0.5).toFixed(1));
+        this.hudCombo.textContent = `x${this.combo.toFixed(1)}`;
+
+        // Teen rating title
+        let rankText = "S+ [CYBER GOD]";
+        if (this.timeLeft < 6 || this.moves > 25) {
+          rankText = "B [MID HACK]";
+        } else if (this.timeLeft < 12) {
+          rankText = "A [CLEAN]";
+        } else {
+          rankText = "S+ [GIGACHAD SPEEDRUN]";
+        }
+
+        document.getElementById('win-tier').textContent = `RANK: ${rankText}`;
+        document.getElementById('win-time').textContent = `${this.timeLeft.toFixed(1)}s`;
+        document.getElementById('win-moves').textContent = this.moves;
+        document.getElementById('win-bonus').textContent = `+${totalNodeGain}`;
+        document.getElementById('win-total').textContent = this.score;
+
+        setTimeout(() => {
+          this.winModal.classList.add('active');
+        }, 550);
+      }
+
+      triggerLoss() {
+        this.isGameOver = true;
+        clearInterval(this.timer);
+        sound.failBuzz();
+
+        const container = document.getElementById('game-container');
+        container.classList.add('shake');
+        setTimeout(() => container.classList.remove('shake'), 450);
+
+        this.combo = 1.0;
+        this.hudCombo.textContent = 'x1.0';
+        document.getElementById('lose-score').textContent = this.score;
+
+        setTimeout(() => {
+          this.loseModal.classList.add('active');
+        }, 400);
+      }
+    }
+
+    // Launch game
+    window.addEventListener('DOMContentLoaded', () => {
+      new Game();
+    });
+  </script>
+</body>
+</html>
