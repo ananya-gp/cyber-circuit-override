@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CYBER CIRCUIT // OVERRIDE</title>
+  <title>CYBER CIRCUIT // OVERRIDE & SANDBOX</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #07090e;
-      --card-bg: rgba(14, 18, 30, 0.88);
+      --card-bg: rgba(14, 18, 30, 0.9);
       --neon-cyan: #00f3ff;
       --neon-pink: #ff0055;
       --neon-green: #00ff88;
       --neon-yellow: #ffe600;
+      --neon-purple: #b537f2;
       --grid-bg: #090d18;
       --wire-inactive: #222d42;
       --text: #e2e8f0;
@@ -22,6 +23,7 @@
       --glow-cyan: 0 0 16px rgba(0, 243, 255, 0.65), 0 0 32px rgba(0, 243, 255, 0.25);
       --glow-pink: 0 0 16px rgba(255, 0, 85, 0.65), 0 0 32px rgba(255, 0, 85, 0.25);
       --glow-green: 0 0 18px rgba(0, 255, 136, 0.8);
+      --glow-purple: 0 0 18px rgba(181, 55, 242, 0.7);
     }
 
     * {
@@ -50,7 +52,7 @@
       padding: 12px;
     }
 
-    /* CRT scanline texture */
+    /* CRT scanlines */
     body::before {
       content: " ";
       position: fixed;
@@ -64,11 +66,11 @@
 
     .game-container {
       width: 100%;
-      max-width: 520px;
+      max-width: 540px;
       background: var(--card-bg);
       border: 1px solid rgba(0, 243, 255, 0.3);
       border-radius: 14px;
-      padding: 18px;
+      padding: 16px;
       box-shadow: 0 0 50px rgba(0, 0, 0, 0.85), inset 0 0 25px rgba(0, 243, 255, 0.06);
       backdrop-filter: blur(14px);
       position: relative;
@@ -99,17 +101,47 @@
       text-shadow: 0 0 10px var(--neon-pink);
     }
 
-    .badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
+    /* Mode Navigation Tabs */
+    .mode-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 12px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
       letter-spacing: 1px;
-      padding: 2px 6px;
-      background: rgba(0, 243, 255, 0.15);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(0, 243, 255, 0.25), rgba(0, 136, 255, 0.25));
       border: 1px solid var(--neon-cyan);
-      color: var(--neon-cyan);
-      border-radius: 4px;
-      display: inline-block;
-      margin-top: 3px;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.3);
+    }
+
+    .tab-btn.sandbox-tab.active {
+      background: linear-gradient(135deg, rgba(181, 55, 242, 0.3), rgba(255, 0, 85, 0.2));
+      border: 1px solid var(--neon-purple);
+      box-shadow: var(--glow-purple);
     }
 
     .top-controls {
@@ -134,7 +166,7 @@
       box-shadow: var(--glow-cyan);
     }
 
-    /* HUD */
+    /* HUD for Campaign */
     .hud {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -170,7 +202,7 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Firewall Trace Bar */
+    /* Trace Bar */
     .trace-container {
       margin-bottom: 12px;
     }
@@ -220,6 +252,73 @@
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.3; transform: scale(1.3); }
+    }
+
+    /* Sandbox Toolbar Controls */
+    .sandbox-panel {
+      display: none;
+      margin-bottom: 12px;
+    }
+
+    .sandbox-panel.active {
+      display: block;
+    }
+
+    .sandbox-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(181, 55, 242, 0.3);
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tool-group {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .tool-btn:hover {
+      border-color: var(--neon-cyan);
+      background: rgba(0, 243, 255, 0.15);
+    }
+
+    .tool-btn.active {
+      border-color: var(--neon-purple);
+      background: rgba(181, 55, 242, 0.25);
+      box-shadow: 0 0 10px rgba(181, 55, 242, 0.5);
+      color: #fff;
+    }
+
+    .matrix-size-select {
+      background: #0d121f;
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      color: var(--neon-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 5px 8px;
+      border-radius: 5px;
+      outline: none;
     }
 
     /* Board Area */
@@ -333,7 +432,7 @@
       filter: drop-shadow(0 0 8px var(--neon-green));
     }
 
-    /* Terminal bar */
+    /* Terminal Status Log */
     .terminal-bar {
       background: #070910;
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -366,10 +465,10 @@
       flex-shrink: 0;
     }
 
-    /* Controls bar */
+    /* Bottom Action Controls */
     .bottom-bar {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .action-btn-sm {
@@ -394,6 +493,18 @@
       background: var(--neon-cyan);
       color: #000;
       box-shadow: var(--glow-cyan);
+    }
+
+    .action-btn-sm.sandbox-btn {
+      border-color: var(--neon-purple);
+      color: var(--neon-purple);
+      background: rgba(181, 55, 242, 0.12);
+    }
+
+    .action-btn-sm.sandbox-btn:hover {
+      background: var(--neon-purple);
+      color: #fff;
+      box-shadow: var(--glow-purple);
     }
 
     /* Modals */
@@ -523,17 +634,22 @@
     <header class="header">
       <div class="title-group">
         <h1>CYBER <span>OVERRIDE</span></h1>
-        <div class="badge">CIRCUIT BREACH PROTOCOL</div>
       </div>
       <div class="top-controls">
         <button class="icon-btn" id="sfx-toggle" title="Toggle SFX">🔊</button>
         <button class="icon-btn" id="music-toggle" title="Toggle Synth Beat">🎵</button>
-        <button class="icon-btn" id="restart-level-btn" title="Restart Level">↺</button>
+        <button class="icon-btn" id="restart-level-btn" title="Reset">↺</button>
       </div>
     </header>
 
-    <!-- HUD -->
-    <div class="hud">
+    <!-- Mode Switcher Tabs -->
+    <div class="mode-tabs">
+      <button class="tab-btn active" id="tab-campaign">⚡ CAMPAIGN BREACH</button>
+      <button class="tab-btn sandbox-tab" id="tab-sandbox">🛠️ SANDBOX LAB</button>
+    </div>
+
+    <!-- Campaign HUD -->
+    <div class="hud" id="campaign-hud">
       <div class="hud-box">
         <div class="hud-label">LAYER</div>
         <div class="hud-value" id="hud-level">1/6</div>
@@ -552,14 +668,38 @@
       </div>
     </div>
 
-    <!-- Firewall Trace Timer -->
-    <div class="trace-container">
+    <!-- Campaign Firewall Trace Bar -->
+    <div class="trace-container" id="campaign-trace">
       <div class="trace-header">
         <span class="trace-label">FIREWALL TRACE ACTIVE</span>
         <span id="trace-time-display">25.0s</span>
       </div>
       <div class="trace-bar-bg">
         <div class="trace-bar-fill" id="trace-bar"></div>
+      </div>
+    </div>
+
+    <!-- Sandbox Toolbar Panel -->
+    <div class="sandbox-panel" id="sandbox-panel">
+      <div class="sandbox-toolbar">
+        <div class="tool-group">
+          <button class="tool-btn active" data-tool="rotate" title="Click to rotate node">🔄 ROTATE</button>
+          <button class="tool-btn" data-tool="straight" title="Place Straight Conduit">━ WIRE</button>
+          <button class="tool-btn" data-tool="elbow" title="Place Elbow Corner">┏ CORNER</button>
+          <button class="tool-btn" data-tool="tee" title="Place T-Splitter">┳ TEE</button>
+          <button class="tool-btn" data-tool="cross" title="Place 4-Way Cross">╋ CROSS</button>
+          <button class="tool-btn" data-tool="source" title="Place Power Source">⚡ SOURCE</button>
+          <button class="tool-btn" data-tool="target" title="Place Core Breach">🎯 CORE</button>
+          <button class="tool-btn" data-tool="empty" title="Clear tile">🗑️ EMPTY</button>
+        </div>
+        <div>
+          <select class="matrix-size-select" id="sandbox-size">
+            <option value="3">3x3</option>
+            <option value="4" selected>4x4</option>
+            <option value="5">5x5</option>
+            <option value="6">6x6</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -578,9 +718,16 @@
       <div id="grid-dim-indicator">3x3 MATRIX</div>
     </div>
 
-    <!-- Action Bottom Bar -->
-    <div class="bottom-bar">
+    <!-- Campaign Action Bar -->
+    <div class="bottom-bar" id="campaign-controls">
       <button class="action-btn-sm" id="hint-btn">⚡ SCAN TRACE (HINT)</button>
+    </div>
+
+    <!-- Sandbox Action Bar -->
+    <div class="bottom-bar" id="sandbox-controls" style="display: none;">
+      <button class="action-btn-sm sandbox-btn" id="sandbox-pulse-btn">💥 PULSE OVERCHARGE</button>
+      <button class="action-btn-sm sandbox-btn" id="sandbox-randomize-btn">🎲 RANDOM LAB</button>
+      <button class="action-btn-sm sandbox-btn" id="sandbox-clear-btn">🧹 CLEAR ALL</button>
     </div>
 
     <!-- Victory Modal -->
@@ -653,6 +800,10 @@
         setTimeout(() => this.playTone(900, 'sine', 0.03, 0.12), 20);
       }
 
+      placeTile() {
+        this.playTone(450, 'square', 0.06, 0.14);
+      }
+
       alarmBeep() {
         this.playTone(950, 'sawtooth', 0.1, 0.22);
       }
@@ -704,7 +855,7 @@
     const sound = new CyberSound();
 
     /* =====================================================================
-       PARTICLE SYSTEM (Canvas Sparks)
+       PARTICLE SYSTEM (Sparks & Fireworks)
        ===================================================================== */
     const canvas = document.getElementById('particles-canvas');
     const ctx = canvas.getContext('2d');
@@ -765,7 +916,7 @@
     renderParticles();
 
     /* =====================================================================
-       CIRCUIT MATH & GUARANTEED SOLVABLE GENERATOR
+       CIRCUIT MATH & SHAPES
        Directions: 0: UP, 1: RIGHT, 2: DOWN, 3: LEFT
        ===================================================================== */
     const DIRS = [
@@ -780,7 +931,8 @@
       elbow:    [1, 1, 0, 0], // Top & Right
       tee:      [1, 1, 0, 1], // Top, Right, Left
       cross:    [1, 1, 1, 1], // 4-way
-      cap:      [1, 0, 0, 0]  // Single terminal (Source/Target)
+      cap:      [1, 0, 0, 0], // Single terminal (Source/Target)
+      empty:    [0, 0, 0, 0]  // No wires
     };
 
     function getDir(from, to) {
@@ -803,7 +955,7 @@
     }
 
     function getOpenings(type, rot) {
-      const base = TILE_SHAPES[type];
+      const base = TILE_SHAPES[type] || [0,0,0,0];
       const openings = [0, 0, 0, 0];
       for (let i = 0; i < 4; i++) {
         if (base[i]) openings[(i + rot) % 4] = 1;
@@ -811,7 +963,6 @@
       return openings;
     }
 
-    // Level progression specs
     const CAMPAIGN_SPECS = [
       { size: 3, pathLength: 5, time: 26 },
       { size: 4, pathLength: 7, time: 30 },
@@ -821,8 +972,15 @@
       { size: 5, pathLength: 14, time: 30 }
     ];
 
-    class Game {
+    /* =====================================================================
+       GAME CONTROLLER (Campaign + Sandbox Mode)
+       ===================================================================== */
+    class GameController {
       constructor() {
+        this.mode = 'campaign'; // 'campaign' or 'sandbox'
+        this.selectedTool = 'rotate'; // for sandbox
+
+        // Campaign state
         this.currentLevelIdx = 0;
         this.score = 0;
         this.moves = 0;
@@ -849,29 +1007,37 @@
         this.loseModal = document.getElementById('lose-modal');
 
         this.attachEventListeners();
-        this.loadLevel(this.currentLevelIdx);
+        this.loadCampaignLevel(this.currentLevelIdx);
       }
 
       attachEventListeners() {
+        // Mode Tabs
+        document.getElementById('tab-campaign').addEventListener('click', () => this.switchMode('campaign'));
+        document.getElementById('tab-sandbox').addEventListener('click', () => this.switchMode('sandbox'));
+
+        // Modals
         document.getElementById('next-level-btn').addEventListener('click', () => {
           this.winModal.classList.remove('active');
           this.currentLevelIdx++;
-          this.loadLevel(this.currentLevelIdx);
+          this.loadCampaignLevel(this.currentLevelIdx);
         });
 
         document.getElementById('retry-btn').addEventListener('click', () => {
           this.loseModal.classList.remove('active');
-          this.loadLevel(this.currentLevelIdx);
+          this.loadCampaignLevel(this.currentLevelIdx);
         });
 
         document.getElementById('restart-level-btn').addEventListener('click', () => {
-          this.loadLevel(this.currentLevelIdx);
+          if (this.mode === 'campaign') {
+            this.loadCampaignLevel(this.currentLevelIdx);
+          } else {
+            this.initSandboxGrid(this.size);
+          }
         });
 
-        document.getElementById('hint-btn').addEventListener('click', () => {
-          this.giveHint();
-        });
+        document.getElementById('hint-btn').addEventListener('click', () => this.giveHint());
 
+        // Top Toggles
         document.getElementById('sfx-toggle').addEventListener('click', (e) => {
           sound.sfxEnabled = !sound.sfxEnabled;
           e.target.textContent = sound.sfxEnabled ? '🔊' : '🔇';
@@ -882,8 +1048,83 @@
           e.target.textContent = on ? '🎶' : '🎵';
           e.target.style.borderColor = on ? 'var(--neon-green)' : '';
         });
+
+        // Sandbox Toolbar Tools
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            const target = e.currentTarget;
+            target.classList.add('active');
+            this.selectedTool = target.dataset.tool;
+            sound.rotateClick();
+            this.terminalMsg.textContent = `TOOL: ${this.selectedTool.toUpperCase()} SELECTED`;
+          });
+        });
+
+        // Sandbox Matrix Size
+        document.getElementById('sandbox-size').addEventListener('change', (e) => {
+          const newSize = parseInt(e.target.value, 10);
+          this.size = newSize;
+          this.initSandboxGrid(newSize);
+        });
+
+        // Sandbox Actions
+        document.getElementById('sandbox-pulse-btn').addEventListener('click', () => {
+          spawnBurst(canvas.width / 2, canvas.height / 2, '#00f3ff', 80);
+          sound.winChime();
+          this.updatePowerFlow();
+        });
+
+        document.getElementById('sandbox-randomize-btn').addEventListener('click', () => {
+          this.randomizeSandbox();
+        });
+
+        document.getElementById('sandbox-clear-btn').addEventListener('click', () => {
+          this.clearSandbox();
+        });
       }
 
+      switchMode(newMode) {
+        this.mode = newMode;
+        clearInterval(this.timer);
+        this.winModal.classList.remove('active');
+        this.loseModal.classList.remove('active');
+
+        const tabCampaign = document.getElementById('tab-campaign');
+        const tabSandbox = document.getElementById('tab-sandbox');
+        const campaignHud = document.getElementById('campaign-hud');
+        const campaignTrace = document.getElementById('campaign-trace');
+        const sandboxPanel = document.getElementById('sandbox-panel');
+        const campaignControls = document.getElementById('campaign-controls');
+        const sandboxControls = document.getElementById('sandbox-controls');
+
+        if (newMode === 'campaign') {
+          tabCampaign.classList.add('active');
+          tabSandbox.classList.remove('active');
+          campaignHud.style.display = 'grid';
+          campaignTrace.style.display = 'block';
+          sandboxPanel.classList.remove('active');
+          campaignControls.style.display = 'flex';
+          sandboxControls.style.display = 'none';
+
+          this.loadCampaignLevel(this.currentLevelIdx);
+        } else {
+          tabCampaign.classList.remove('active');
+          tabSandbox.classList.add('active');
+          campaignHud.style.display = 'none';
+          campaignTrace.style.display = 'none';
+          sandboxPanel.classList.add('active');
+          campaignControls.style.display = 'none';
+          sandboxControls.style.display = 'flex';
+
+          this.size = parseInt(document.getElementById('sandbox-size').value, 10) || 4;
+          this.initSandboxGrid(this.size);
+        }
+      }
+
+      /* -------------------------------------------------------------
+         CAMPAIGN MODE
+         ------------------------------------------------------------- */
       generateGuaranteedLevel(size, pathLength) {
         let path = null;
         for (let attempt = 0; attempt < 300; attempt++) {
@@ -913,13 +1154,11 @@
         }
 
         if (!path) {
-          // Fallback simple path
           path = [];
           for (let c = 0; c < size; c++) path.push({ r: 0, c });
           for (let r = 1; r < size; r++) path.push({ r, c: size - 1 });
         }
 
-        // Build grid
         let grid = [];
         for (let r = 0; r < size; r++) {
           let row = [];
@@ -938,7 +1177,6 @@
           grid.push(row);
         }
 
-        // Assign path tiles
         for (let i = 0; i < path.length; i++) {
           let cell = grid[path[i].r][path[i].c];
           if (i === 0) {
@@ -963,7 +1201,6 @@
           }
         }
 
-        // Fill remaining tiles
         const fillers = ['straight', 'elbow', 'tee', 'cross'];
         for (let r = 0; r < size; r++) {
           for (let c = 0; c < size; c++) {
@@ -976,12 +1213,12 @@
           }
         }
 
-        // Scramble rotatable tiles so puzzle starts unsolved
+        // Scramble
         for (let r = 0; r < size; r++) {
           for (let c = 0; c < size; c++) {
             let cell = grid[r][c];
             if (!cell.locked) {
-              const offset = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3 rotations
+              const offset = Math.floor(Math.random() * 3) + 1;
               cell.rotation = (cell.rotation + offset) % 4;
             }
           }
@@ -990,7 +1227,7 @@
         return { grid, path, source: path[0], target: path[path.length - 1] };
       }
 
-      loadLevel(idx) {
+      loadCampaignLevel(idx) {
         clearInterval(this.timer);
         this.isGameOver = false;
         this.winModal.classList.remove('active');
@@ -1011,7 +1248,7 @@
         this.moves = 0;
         this.hudMoves.textContent = this.moves;
         this.gridDimIndicator.textContent = `${this.size}x${this.size} MATRIX`;
-        this.terminalMsg.textContent = `INFILTRATING SECURITY LAYER #${idx + 1}... ROUTE CONDUIT`;
+        this.terminalMsg.textContent = `LAYER #${idx + 1}... REWIRE CONDUITS`;
 
         const generated = this.generateGuaranteedLevel(this.size, spec.pathLength);
         this.grid = generated.grid;
@@ -1043,14 +1280,90 @@
         const percent = ((this.timeTotal - this.timeLeft) / this.timeTotal) * 100;
         this.traceBar.style.width = `${Math.min(100, percent)}%`;
         this.traceTimeDisplay.textContent = `${this.timeLeft.toFixed(1)}s`;
-
-        if (this.timeLeft < 7) {
-          this.traceTimeDisplay.style.color = 'var(--neon-pink)';
-        } else {
-          this.traceTimeDisplay.style.color = '#fff';
-        }
+        this.traceTimeDisplay.style.color = (this.timeLeft < 7) ? 'var(--neon-pink)' : '#fff';
       }
 
+      /* -------------------------------------------------------------
+         SANDBOX MODE
+         ------------------------------------------------------------- */
+      initSandboxGrid(size) {
+        this.size = size;
+        this.isGameOver = false;
+        this.gridDimIndicator.textContent = `LAB: ${size}x${size}`;
+        this.terminalMsg.textContent = `SANDBOX ACTIVE: EXPERIMENT & DESIGN CIRCUITS`;
+
+        this.grid = [];
+        for (let r = 0; r < size; r++) {
+          const row = [];
+          for (let c = 0; c < size; c++) {
+            const isSource = (r === 0 && c === 0);
+            const isTarget = (r === size - 1 && c === size - 1);
+            let type = 'straight';
+            let rot = 0;
+
+            if (isSource) {
+              type = 'cap';
+              rot = 1; // points right
+            } else if (isTarget) {
+              type = 'cap';
+              rot = 3; // points left
+            } else {
+              type = (r === 0 && c === 1) ? 'elbow' : 'empty';
+            }
+
+            row.push({
+              r, c,
+              type,
+              rotation: rot,
+              isSource,
+              isTarget,
+              locked: false,
+              powered: false
+            });
+          }
+          this.grid.push(row);
+        }
+
+        this.renderBoard();
+        this.updatePowerFlow();
+      }
+
+      randomizeSandbox() {
+        const types = ['straight', 'elbow', 'tee', 'cross'];
+        for (let r = 0; r < this.size; r++) {
+          for (let c = 0; c < this.size; c++) {
+            const cell = this.grid[r][c];
+            if (!cell.isSource && !cell.isTarget) {
+              cell.type = types[Math.floor(Math.random() * types.length)];
+              cell.rotation = Math.floor(Math.random() * 4);
+            }
+          }
+        }
+        this.renderBoard();
+        this.updatePowerFlow();
+        sound.rotateClick();
+        this.terminalMsg.textContent = `RANDOM LAB MATRIX GENERATED`;
+      }
+
+      clearSandbox() {
+        for (let r = 0; r < this.size; r++) {
+          for (let c = 0; c < this.size; c++) {
+            const cell = this.grid[r][c];
+            if (!cell.isSource && !cell.isTarget) {
+              cell.type = 'empty';
+              cell.rotation = 0;
+            }
+          }
+        }
+        this.renderBoard();
+        this.updatePowerFlow();
+        sound.placeTile();
+        this.terminalMsg.textContent = `SANDBOX BOARD CLEARED`;
+      }
+
+      /* -------------------------------------------------------------
+         BOARD RENDERING & INTERACTION
+         ------------------------------------------------------------- */
       renderBoard() {
         this.gridEl.innerHTML = '';
         this.gridEl.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
@@ -1062,7 +1375,7 @@
             const tileEl = document.createElement('div');
             tileEl.className = 'tile';
             tileEl.id = `tile-${r}-${c}`;
-            if (cell.locked) tileEl.classList.add('locked');
+            if (cell.locked && this.mode === 'campaign') tileEl.classList.add('locked');
 
             tileEl.innerHTML = this.getSVG(cell.type, cell.isSource, cell.isTarget);
             tileEl.style.transform = `rotate(${cell.rotation * 90}deg)`;
@@ -1133,25 +1446,71 @@
                 <circle cx="50" cy="50" r="6" fill="#303e5c" />
               </svg>
             `;
+          default: // empty
+            return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="3" fill="#20293d" /></svg>`;
         }
       }
 
       handleTileClick(cell, el) {
-        if (this.isGameOver || cell.locked) return;
+        if (this.mode === 'campaign') {
+          if (this.isGameOver || cell.locked) return;
+          cell.rotation = (cell.rotation + 1) % 4;
+          el.style.transform = `rotate(${cell.rotation * 90}deg)`;
+          this.moves++;
+          this.hudMoves.textContent = this.moves;
+          sound.rotateClick();
+          this.updatePowerFlow();
+          return;
+        }
 
-        cell.rotation = (cell.rotation + 1) % 4;
-        el.style.transform = `rotate(${cell.rotation * 90}deg)`;
-        
-        this.moves++;
-        this.hudMoves.textContent = this.moves;
-        sound.rotateClick();
+        // Sandbox Mode Handling
+        if (this.selectedTool === 'rotate') {
+          cell.rotation = (cell.rotation + 1) % 4;
+          el.style.transform = `rotate(${cell.rotation * 90}deg)`;
+          sound.rotateClick();
+        } else if (this.selectedTool === 'source') {
+          // Remove source from existing
+          for (let r = 0; r < this.size; r++) {
+            for (let c = 0; c < this.size; c++) {
+              if (this.grid[r][c].isSource) {
+                this.grid[r][c].isSource = false;
+                this.grid[r][c].type = 'empty';
+              }
+            }
+          }
+          cell.isSource = true;
+          cell.isTarget = false;
+          cell.type = 'cap';
+          sound.placeTile();
+          this.renderBoard();
+        } else if (this.selectedTool === 'target') {
+          for (let r = 0; r < this.size; r++) {
+            for (let c = 0; c < this.size; c++) {
+              if (this.grid[r][c].isTarget) {
+                this.grid[r][c].isTarget = false;
+                this.grid[r][c].type = 'empty';
+              }
+            }
+          }
+          cell.isTarget = true;
+          cell.isSource = false;
+          cell.type = 'cap';
+          sound.placeTile();
+          this.renderBoard();
+        } else {
+          // straight, elbow, tee, cross, empty
+          cell.isSource = false;
+          cell.isTarget = false;
+          cell.type = this.selectedTool;
+          sound.placeTile();
+          this.renderBoard();
+        }
 
         this.updatePowerFlow();
       }
 
       giveHint() {
-        if (this.isGameOver) return;
-        // Find first unsolved cell along solution path
+        if (this.isGameOver || this.mode !== 'campaign') return;
         for (let i = 1; i < this.solutionPath.length - 1; i++) {
           const pt = this.solutionPath[i];
           const cell = this.grid[pt.r][pt.c];
@@ -1172,7 +1531,6 @@
       }
 
       updatePowerFlow() {
-        // Reset powered
         for (let r = 0; r < this.size; r++) {
           for (let c = 0; c < this.size; c++) {
             this.grid[r][c].powered = false;
@@ -1190,7 +1548,6 @@
 
         if (!sourceCell) return;
 
-        // BFS
         sourceCell.powered = true;
         const queue = [sourceCell];
         const visited = new Set([`${sourceCell.r},${sourceCell.c}`]);
@@ -1221,10 +1578,10 @@
           }
         }
 
-        // Apply visual classes
         for (let r = 0; r < this.size; r++) {
           for (let c = 0; c < this.size; c++) {
             const el = document.getElementById(`tile-${r}-${c}`);
+            if (!el) continue;
             const cell = this.grid[r][c];
             if (cell.powered) {
               el.classList.add('powered');
@@ -1234,9 +1591,17 @@
           }
         }
 
-        // Check victory
-        if (targetCell && targetCell.powered && !this.isGameOver) {
-          this.triggerVictory(targetCell);
+        if (targetCell && targetCell.powered) {
+          const targetEl = document.getElementById(`tile-${targetCell.r}-${targetCell.c}`);
+          if (targetEl) targetEl.classList.add('target-powered');
+
+          if (this.mode === 'campaign' && !this.isGameOver) {
+            this.triggerVictory(targetCell);
+          } else if (this.mode === 'sandbox') {
+            this.terminalMsg.textContent = `⚡ CIRCUIT COMPLETE: 100% THROUGHPUT DETECTED`;
+          }
+        } else if (this.mode === 'sandbox') {
+          this.terminalMsg.textContent = `CIRCUIT OPEN: INCOMPLETE ROUTE TO CORE`;
         }
       }
 
@@ -1247,13 +1612,11 @@
         const targetEl = document.getElementById(`tile-${targetCell.r}-${targetCell.c}`);
         targetEl.classList.add('target-powered');
 
-        // Sparks & Sound
         const rect = targetEl.getBoundingClientRect();
         const boardRect = canvas.getBoundingClientRect();
         spawnBurst(rect.left - boardRect.left + rect.width / 2, rect.top - boardRect.top + rect.height / 2, '#00ff88', 65);
         sound.winChime();
 
-        // Calculate score & rating
         const timeBonus = Math.floor(this.timeLeft * 80);
         const efficiencyBonus = Math.max(0, 500 - (this.moves * 15));
         const nodeBase = 1000;
@@ -1264,7 +1627,6 @@
         this.combo = Math.min(4.0, +(this.combo + 0.5).toFixed(1));
         this.hudCombo.textContent = `x${this.combo.toFixed(1)}`;
 
-        // Teen rating title
         let rankText = "S+ [CYBER GOD]";
         if (this.timeLeft < 6 || this.moves > 25) {
           rankText = "B [MID HACK]";
@@ -1304,9 +1666,8 @@
       }
     }
 
-    // Launch game
     window.addEventListener('DOMContentLoaded', () => {
-      new Game();
+      new GameController();
     });
   </script>
 </body>
